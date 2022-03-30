@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+    <h1>搜尋結果：</h1>
+    <h5>搜尋關鍵字：&nbsp&nbsp&nbsp&nbsp{{q}}</h5>
+    {% if stock %}
+    <ul>
+        {% for item in page_obj.object_list %}
+            <li><a href="{% url 'stock-detail' item.code %}">
+                {{item.code}}
+                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                {{item.name}}
+            </a></li>
+
+        {% endfor %}
+
+    {% else %}
+            <h5>&nbsp&nbsp&nbsp查無結果</h5>
+    {% endif %}
+
+{% endblock %}

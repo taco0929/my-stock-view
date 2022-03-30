@@ -1,0 +1,53 @@
+{% extends 'base_generic.html' %}
+{% block title %}我的主頁{% endblock %}
+
+{% block content %}
+{% load get_kv_tag %}
+<p></p>
+<h3>我的主頁</h3><br>
+<table class="default_table">
+    
+        <tr>
+            <table>
+                <th colspan="2"><h4>股票列表</h4></th>
+                {% if stock_list %}
+                    {% for stock in stock_list %}
+                        <tr>
+                            <td style="; width:100px;height:30px"><a href="{% url 'stock-detail' stock.code %}">{{stock.name}}</a></td>
+                            <td style="width:100px;">{{stock.code}}</td>
+                            {% for i in stock_list|get_value:stock %}
+                                {% if forloop.first %}<td style="width:100px">{{i}}</td>
+                                {% elif forloop.last%}<td style="width:100px">{{i}}</td>
+                                {% else %}<td style="width:100px">{{i}}</td>{% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor%}
+                    <td><br><a href="{% url 'account:sublist'%}">查看全部</a></td>
+                {% else %}
+                    <tr><td>目前列表為空，<a href="{% url 'search-stock'%}">新增列表？</a></td></tr>
+                {% endif %}
+            </table>
+        </tr>
+</table>      
+<hr>
+<br>
+<table>
+    <th><h4>相關新聞 </h4></th>
+    {% if news_list %}
+        {% for news in news_list %}
+        <tr>
+            <td style="width:250px;height:30px">{{news.date_time}}</td>
+            <td style="height:30px"><a href="{% url 'news-content' news.title %}">{{news.title}}</a></td>
+        </tr>
+        
+        {% endfor %}
+        <tr>
+            <!--<td><br><a>查看全部</a></td>-->
+        </tr>
+    {% endif %}
+</table>
+
+
+
+
+{% endblock%}

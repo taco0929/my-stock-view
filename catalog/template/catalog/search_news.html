@@ -1,0 +1,25 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+
+<h1>搜尋結果：</h1>
+{% if q %}
+    <h5>搜尋關鍵字：&nbsp&nbsp&nbsp&nbsp{{q}}</h5>
+{% else %}
+    <h5>全部新聞</h5>
+{% endif %}
+{% if news %}
+<ul>
+    {% for item in page_obj.object_list %}
+        <li>
+            {{item.date_time}}
+            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            <a href="{% url 'news-content' item.title %}">{{item.title}}</a>
+        </li>
+
+    {% endfor %}
+{% else %}
+    <h5>&nbsp&nbsp&nbsp查無結果</h5>
+{% endif %}
+
+{% endblock %}  

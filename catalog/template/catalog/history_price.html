@@ -1,0 +1,20 @@
+{% extends "base_generic.html"%}
+{% block content %}
+<br>
+<h3 align="center">History Price</h3>
+<br>
+<table align="center">
+    <th colspan="2", align=center>{{stock.name}}</th>
+    {% for item in page_obj.object_list %}
+        <tr>
+            <td style="height:50px;width:300px;text-align=left;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.date_time}}</td>
+            <td style="width:300px; text-align:right;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.price}}</td>
+        </tr>
+    {% endfor%}
+</table>
+
+{% endblock %}

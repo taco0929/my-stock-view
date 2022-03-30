@@ -1,0 +1,117 @@
+{% extends "base_generic.html"%}
+
+{% block title %}{{stock.name}}{% endblock %}
+{% block content %}
+    <h1>Information of {{stock.name}}</h1>
+    {% if user.is_authenticated %}<a href="{% url 'stock-detail-add' stock.code %}">新增至我的列表</a>{% endif %}
+    <br><br>
+    <div>
+        <table height=200px>
+            <tr>
+                <td width=400px, valign="top">
+                    <table style="border:5px double black;">
+                        <tr>
+                            <td style="border:1px solid black; width:150px;">
+                                <strong>Company code:  </strong>
+                                </td>
+                                <td style="border:1px solid black; width:150px;">
+                                    <strong>{{stock.code}} </strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  style="border:1px solid black"><strong>Latest Price:</strong></td>
+                            <td style="border:1px solid black">{{latest}}</td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black"><strong>Open price:</strong></td>
+                            <td style="border:1px solid black">{{open}}</td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black"><strong>Changes: </strong></td>
+                            <td style="border:1px solid black">{{changes}}</td>
+
+                            
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black"><strong>%Changes: </strong></td>
+                            <td style="border:1px solid black">{{changes_percent}}</td>
+
+                        </tr>
+
+                    </table>
+                </td>
+                <td valign="top";>
+                    <table style="border:5px double black;">
+                        <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Sector: </strong></td>
+                            <td style="border:1px solid black; width:150px;">{{stock.sector_id}}</td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Market value: </strong>
+                            </td>
+                            <td style="border:1px solid black; width:150px;">{{stock_inf.market_value}}
+                            </td>
+
+                    </table>
+                </td>
+            </tr>
+        </table>
+</div>
+<div>
+    <h3>Today's Price</h3>
+    <a href="{% url 'history-price' stock.code %}">View history price</a>
+    <table style="border:5px double black;">
+        {% if today_price %}
+            {% for item in today_price %}
+                <tr>
+                    <td style="height:50px;
+                    width:300px;
+                    text-align:left;
+                    margin-left:auto; 
+                    margin-right:auto;
+                    border:2px solid black;">
+                        {{item.date_time}}
+                    </td>
+                    <td style="height:50px;
+                    width:300px;
+                    text-align:left;
+                    margin-left:auto; 
+                    margin-right:auto;
+                    border:2px solid black;">
+                        {{item.price}}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+</div>
+<br><br>
+<div>
+    <h3>Company Information</h3>
+    <p>{{stock_inf.business_describ}}</p>
+</div><br><br>
+<div>
+    <h3>Related News</h3>
+    {% if news %}
+        <ul>
+            {% for new in news %}
+            <li> 
+                <table>
+                    <td width=300px>
+                {{new.date_time}}
+                    </td>
+                    <td width=400px>
+                        <a href="{% url 'news-content' new.title %}">{{new.title}}</a>
+                    </td> 
+                </table>
+            </li>
+            {% endfor%}
+        </ul>
+        <a href="{% url 'search-news' %}?q={{stock.code}}">View all news</a>
+    {% else %}
+        <p>No news currently</p>
+    {% endif %}
+
+</div>
+<br><br>
+{% endblock %}

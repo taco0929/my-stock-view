@@ -1,0 +1,24 @@
+{% extends 'base_generic.html'%}
+{% block content %}
+<h3>{{news.title}}</h3>
+<br>
+{% if news.url %}
+    <a href="{{news.url}}">原文</a>
+    <br>
+{% endif %}
+<div>
+    {{news.date_time}}
+</div>
+<div>
+    <p>Related Company: 
+    {% for stock in news.related_stock.all%}
+        <a href="{% url 'stock-detail' stock.code%}">{{stock.name}}</a>&nbsp&nbsp&nbsp&nbsp
+    {% endfor %}
+</div>
+<br>
+<div>
+    <p>{{news.content}}</p>
+</div>
+
+
+{% endblock %}

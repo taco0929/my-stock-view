@@ -1,0 +1,20 @@
+{% extends 'base_generic.html' %}
+
+{% block title%}刪除{% endblock %}
+
+{% block content %}
+{% if msg %}
+<h4>{{msg}}</h4>
+<p><a href="{% url 'account:sublist' %}">返回列表</a></p>
+{% else %}
+<p></p>
+<h4>刪除&nbsp&nbsp&nbsp{{d}}?</h4><br>
+<form action="" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="確認" name="delete">
+</form>
+<form action="" method="POST">
+    <input type="button" value="取消" onclick=location.href="{% url 'account:sublist'%}">
+</form>
+{% endif %}
+{% endblock%}

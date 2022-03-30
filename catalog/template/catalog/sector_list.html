@@ -1,0 +1,39 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<h1 style="text-align:center;">All sectors</h1><br>
+{% if sector_list %}
+<style>
+    .sector{
+        width:250px;
+        height:50px;
+        margin-left:auto; 
+        margin-right:auto;
+        text-align:center;
+        border:2px solid black;
+    }
+
+</style>
+
+    {% for sector in sector_list %}
+        <br>
+        <div>
+            <table style="margin-left:auto;margin-right:auto;border:5px double black;">
+
+                <h4 style="text-align:center;">{{sector.name}}<h3>
+                {% for stock in sector.stock_set.all %}
+                    {% if forloop.first %}
+                        <tr>
+                    {% elif forloop.counter|divisibleby:5  %}
+                        </tr><tr>
+                    {% endif %}
+                        <td class="sector"><a href="{% url 'stock-detail' stock.code %}">{{stock.code}} {{stock.name}}</a></td>
+                {% endfor%}
+                
+                        </tr>
+            </table>
+        </div>
+    {% endfor %}
+    {% else %}
+        <h3>Currently not available.</h3>
+    {% endif %}
+{% endblock %}

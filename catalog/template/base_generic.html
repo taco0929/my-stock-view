@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <!-- Add additional CSS in static file -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  </head>
+<body>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2">
+                {% block sidebar %}
+                <br>
+                <ul class="sidebar-nav">
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="{% url 'sector-list' %}">All sectors</a></li>
+                    <li><a href="{% url 'search-news' %}?q=">All news</a></li>
+                    <li>
+                        Search stocks 
+                        <form role="search" method="get" id="searchform" action="{% url 'search-stock'  %}">
+                            <input type="search" name="q" placeholder="股票名稱、代號、產業別" required>
+                            <button type="submit" >搜尋</button>
+                        </form>
+                    </li>
+                    <li>
+                        Search news
+                        <form role="search" method="get" id="searchform" action="{% url 'search-news' %}">
+                            <input type="search" name="q" placeholder="關鍵字" required>
+                            <button type="submit" >搜尋</button>
+                        </form>
+                    </li>
+
+                <br>
+                </ul>
+                <hr>
+                <ul>
+                    {% if user.is_authenticated %}
+                        歡迎，<a href="{% url 'account:user-main'%}">{{user.get_username}}</a>
+                        <li><a href="{% url 'account:sublist' %}">我的列表</a></li>
+                        <li><a href="{% url 'logout' %}?next=/catalog/">Logout</a></li>
+                    {% else %}
+                        <p>You are not logged in.</p>
+                        <p><a href="{% url 'login'%}?next=/catalog/">Login</a></p>
+                        <a href="{% url 'account:sign-up'%}?next=/catalog/">Sign Up</a>
+                    {% endif %}
+                    {% endblock %}
+                </ul>
+            </div>
+            <div class="col-sm-10">
+                {% block content%}{% endblock %}
+                {% block paination %}
+                {% if is_paginated or page_obj %}
+                {% load pagination_tags %}
+                    <div class="pagination">
+                        <span="page-links">
+                            <br>
+                            {% if page_obj.has_previous %}
+                            <a href="?{% url_replace request 'page' page_obj.previous_page_number %}">previous</a>&nbsp&nbsp&nbsp
+                            {% endif %}
+                            <span class="page-current">
+                                Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}.
+                            </span>
+                            {% if page_obj.has_next %}
+                            &nbsp&nbsp&nbsp<a href="?{% url_replace request 'page' page_obj.next_page_number %}">next</a>
+                            {% endif %}
+                        </span>
+                    </div>
+                {% endif %}
+                {% endblock%}
+
+            </div>
+        </div>
+    
+    
+        
+    </div>
+
+
+</body>
+</html>
