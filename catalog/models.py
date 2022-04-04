@@ -50,10 +50,10 @@ class Stock(models.Model):
 class StockInformation(models.Model):
     stock = models.OneToOneField(Stock,on_delete=models.CASCADE,primary_key=True)
     business_describ = models.TextField(help_text='Enter the describtion of the corps.',null=True,blank=True)    
-    market_value = models.IntegerField(help_text='Enter the market value of the corps',null=True,blank=True)
+    market_value = models.BigIntegerField(help_text='Enter the market value of the corps',null=True,blank=True)
     roe = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
     roa = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
-    revenue = models.IntegerField(max_length=20,null=True,blank=True)
+    revenue = models.BigIntegerField(max_length=18,null=True,blank=True)
     revenue_growth = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
     revenue_per_share = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
 
@@ -62,9 +62,8 @@ class StockInformation(models.Model):
 
     
 class News(models.Model):
-    id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=100,help_text='Enter the title of the news')
-    url=models.URLField(max_length=255,null=True,blank=True)
+    title = models.CharField(max_length=80,help_text='Enter the title of the news')
+    url=models.TextField(max_length=255,null=True,blank=True)
     content = models.TextField(help_text='Enter the content of the news', null=True, blank=True)
     date_time = models.DateTimeField(default=datetime.datetime.now)
     related_stock = models.ManyToManyField(Stock,null=True, blank=True)

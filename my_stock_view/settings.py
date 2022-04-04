@@ -26,7 +26,7 @@ SECRET_KEY = 'a%^vfq%up=vzu$m27-7hwy1y5!-47^pz2z8r*sv^#!=%duf#0u'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'crawler.apps.CrawlerConfig',
     # django-q
     'django_q',
+    # django-crontab
+    'django_crontab',
     
 ]
 
@@ -149,3 +151,15 @@ Q_CLUSTER = {
 
     
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRONJOBS = [
+    ('*/2 9-14 * * 1-5', 'crawler.scripts.crawler_functions.get_stock_cur_price'),
+    ('*/60 14 * * 1-5','crawler.scripts.crawler_functions.update_exist_stock_hp_sum'),
+    ('*/60 9-14 * * 1-5', 'crawler.scripts.news_crawler.get_news'),
+    ('*/60 15 1 * *', 'crawler.scripts.db_control.news_ctrl'),
+    ('*/60 15 1 * *', 'crawler.scripts.db_control.hp_ctrl'),
+    ('*/60 15 1 * *', 'crawler.scripts.db_control.hp_sum_ctrl'),
+     
+            ]

@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import datetime
 from django.db.models import Q
 import time
+import re
 
 def get_news(*stock_list,period='1d'):
     if not stock_list:  
@@ -25,18 +26,19 @@ def get_news(*stock_list,period='1d'):
         news_list.search(q)
         
         for news in news_list.results():
-
+            print(news['title'])
             try:
                 n = News.objects.get(title=news['title'])
             except ObjectDoesNotExist:
-                n = News(
-                    title=news['title'],
-                    url=news['link'],
-                    content=news['desc'],
-                    date_time=news['datetime'] or datetime.datetime.now(),
-                )
-                n.save()
-                n.related_stock.add(stock)
+                if re.search(f'{q}',news['title']):
+                    n = News(
+                        title=news['title'],
+                        url=news['link'],
+                        content=news['desc'],
+                        date_time=news['datetime'] or datetime.datetime.now(),
+                    )
+                    n.save()
+                    n.related_stock.add(stock)
                 
                 continue
             n.related_stock.add(stock)
