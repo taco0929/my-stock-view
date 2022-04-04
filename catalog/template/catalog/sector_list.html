@@ -23,7 +23,7 @@
                 {% for stock in sector.stock_set.all %}
                     {% if forloop.first %}
                         <tr>
-                    {% elif forloop.counter|divisibleby:5  %}
+                    {% elif forloop.counter0|divisibleby:5  %}
                         </tr><tr>
                     {% endif %}
                         <td class="sector"><a href="{% url 'stock-detail' stock.code %}">{{stock.code}} {{stock.name}}</a></td>

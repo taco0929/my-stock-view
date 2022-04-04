@@ -1,0 +1,73 @@
+{% extends "base_generic.html"%}
+{% block title %}{{stock.name}} 歷史盤中資訊{% endblock%}
+{% block content %}
+<br>
+<h3 align="center">歷史盤中資訊</h3>
+<br>
+<table align="center">
+    <th colspan="2", align=center>{{stock.name}}</th>
+    <tr>
+        <td style="height:50px;width:300px;
+            text-align=left;
+            margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">日期</td>
+            <td style="height:50px;width:300px;
+            text-align=left;
+            margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">開盤價格</td>
+            <td style="height:50px;width:300px;
+            text-align=left;
+            margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">當日最高</td>
+            <td style="height:50px;width:300px;
+            text-align=left;
+            margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">當日最低</td>
+            <td style="height:50px;width:300px;
+            text-align=left;
+            margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">收盤價格</td>
+            <td style="height:50px;width:300px;
+            text-align=left;
+            margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">漲跌</td>
+            <td style="height:50px;width:300px;
+            text-align=left;
+            margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">漲跌幅</td>
+    </tr>
+    {% for item in page_obj.object_list %}
+        <tr>
+            <td style="height:50px;width:300px;text-align=left;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.date}}</td>
+            <td style="width:300px; text-align:right;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.open}}</td>
+            <td style="width:300px; text-align:right;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.high}}</td>
+            <td style="width:300px; text-align:right;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.low}}</td>
+            <td style="width:300px; text-align:right;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.close}}</td>
+            <td style="width:300px; text-align:right;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.change}}</td>
+            <td style="width:300px; text-align:right;margin-left:auto; 
+            margin-right:auto;
+            border:2px solid black;">{{item.change_p}}  %</td>
+        </tr>
+    {% endfor%}
+</table>
+
+{% endblock %}

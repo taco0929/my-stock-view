@@ -14,7 +14,7 @@
         <li>
             {{item.date_time}}
             &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-            <a href="{% url 'news-content' item.title %}">{{item.title}}</a>
+            <a href="{% url 'news-content' item.id %}">{{item.title}}</a>
         </li>
 
     {% endfor %}

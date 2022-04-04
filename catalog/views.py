@@ -4,13 +4,12 @@ from django.shortcuts import render, redirect
 
 from django.views import generic
 from django.views.generic.edit import CreateView
-from .models import HistoryPrice, News, Sector,Stock, StockInformation
+from .models import HistoryPriceSummary, HistoryPrice, News, Sector,Stock, StockInformation
 from django.db.models import Q
 import datetime
 from django.core.paginator import Paginator
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate,login
-import random
 
 def index(request):
     '''View function for home page of the site'''
@@ -21,18 +20,11 @@ def index(request):
         'latest_news'           :   latest_news,
         })
     random_stock_list = Stock.objects.all().order_by('?')[:10]
-    stock_list_price = {}
-    for stock in random_stock_list:
-        stock_list_price[stock] = [
-            HistoryPrice().get_open_price(stock),
-            HistoryPrice().get_latest_price(stock)
-        ]
-        if HistoryPrice().get_open_price(stock) and HistoryPrice().get_latest_price(stock):
-            stock_list_price[stock].append(f'{round((float(HistoryPrice().get_latest_price(stock))-float(HistoryPrice().get_open_price(stock)))/float(HistoryPrice().get_open_price(stock)),2)}%')
-        else:   stock_list_price[stock].append('-')
+    price_list = [HistoryPriceSummary.objects.filter(stock=i).last() for i in random_stock_list]
+    
     context.update({
         'random_stock_list'     :   random_stock_list,
-        'stock_price_list'      :   stock_list_price,
+        'price_list'            :   price_list,
     })
     
     
@@ -53,42 +45,20 @@ class StockDetailView(generic.DetailView):
         
  
 def StockDetailView(request,pk):
-    stock = Stock.objects.filter(code=pk).values()[0]
-    stock_name = stock['name']
-    sector = stock['sector_id']
+    stock = Stock.objects.get(code=pk)
+    inf = StockInformation.objects.get(stock=stock)
     
-    hisory_price = HistoryPrice()
-    open = hisory_price.get_open_price(pk)
-    latest = hisory_price.get_latest_price(pk)
-    changes=round(float(latest)-float(open),2) if open else '-'
+    h_inf =  HistoryPriceSummary.objects.filter(stock=stock).last()
+    latest_p = HistoryPrice.objects.filter(stock_code=stock).last() or HistoryPriceSummary.objects.filter(stock=stock).last().close
+    today_p = HistoryPrice.objects.filter(stock_code=stock,date_time__date=datetime.date.today()).order_by('-date_time')[:10] or HistoryPrice.objects.filter(stock_code=stock,date_time__date=h_inf.date).order_by('-date_time')[:10]
     
-    changes_percent = f'{round(float(changes)/float(open),2)}%' if open else '-'
-    
-    today_price = HistoryPrice.objects.filter(stock_code=pk,date_time__date=datetime.date.today()).order_by('-date_time')
-    if len(today_price) > 10:    today_price= today_price[:10]
-    
-    news = News.objects.filter(related_stock=pk)
-    if len(news) > 10:  news = news[:10]
-    
-    stock_inf = StockInformation.objects.filter(stock=pk).values()
-    if stock_inf:   stock_inf = stock_inf[0]
-
     
     context = {
-        'stock'               :   stock,
-        
-        'today_price'         :   today_price,
-        
-        'open'                :   open,
-        'latest'              :   latest,
-        'changes'             :   changes,
-        'changes_percent'     :   changes_percent,
-        
-        'news'                :   news,
-        
-        'stock_inf'           :   stock_inf,
-        
-
+        'stock'     :       stock,
+        'inf'       :       inf,
+        'h_inf'     :       h_inf,
+        'latest_p'  :       latest_p,
+        'today_p'   :       today_p,
     }
     return render(request,'./catalog/stock_detail.html',context=context)
      
@@ -102,7 +72,8 @@ class NewsDetailView(generic.DetailView):
     
 def HistoryPriceDetailView(request,pk):
     stock_price_list = HistoryPrice.objects.filter(stock_code__code=pk).order_by('-date_time')
-    stock = Stock.objects.filter(code=pk).first()
+    
+    stock = Stock.objects.get(code=pk)
     context = {
         'stock'             :   stock,
         'stock_price_list'  :   stock_price_list,
@@ -114,6 +85,22 @@ def HistoryPriceDetailView(request,pk):
         'page_obj'  :   page_obj,
     })
     return render(request,'./catalog/history_price.html',context=context)
+
+def HistoryPriceSummaryDetailView(request,pk):
+    stock_price_list = HistoryPriceSummary.objects.filter(stock__code=pk).order_by('-date')
+    
+    stock = Stock.objects.get(code=pk)
+    context = {
+        'stock'             :   stock,
+        'stock_price_list'  :   stock_price_list,
+    }
+    paginator = Paginator(stock_price_list,25)
+    page_number=request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context.update({
+        'page_obj'  :   page_obj,
+    })
+    return render(request,'./catalog/history_price_summary.html',context=context)
 
 
 from django.contrib import messages
@@ -137,7 +124,7 @@ def search_news(request):
         page_obj = paginator.get_page(page_number)
         return render(request,'./catalog/search_news.html',{'news':news,'page_obj':page_obj,'q':q,})
     
-    news = News.objects.filter(Q(title__icontains=q)|Q(related_stock__code=q)|Q(related_stock__name__icontains=q)).order_by('-date_time').distinct()
+    news = News.objects.filter(Q(id=q)|Q(related_stock__code=q)|Q(related_stock__name__icontains=q)).order_by('-date_time').distinct()
     paginator = Paginator(news,15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

@@ -13,7 +13,7 @@
         <ul>
         {% for news in latest_news %}
         
-            <li>{{news.date_time}}&nbsp&nbsp&nbsp<a href="{% url 'news-content' news.title%}">{{news.title}}</a></li>
+            <li>{{news.date_time}}&nbsp&nbsp&nbsp<a href="{% url 'news-content' news.id%}">{{news.title}}</a></li>
         {% endfor %}
         </ul>
         <a href="{% url 'search-news'%}?q=">查看全部</a>
@@ -23,16 +23,15 @@
 <div>
     <table>
         <th colspan="2"><h4>隨便看看：</h4></th>
-        {% if stock_price_list %}
-            {% for stock in stock_price_list %}
+        {% if price_list %}
+            {% for stock in price_list %}
                 <tr>
-                    <td style="; width:100px;height:30px"><a href="{% url 'stock-detail' stock.code %}">{{stock.name}}</a></td>
-                    <td style="width:100px;">{{stock.code}}</td>
-                    {% for i in stock_price_list|get_value:stock %}
-                        {% if forloop.first %}<td style="width:100px">{{i}}</td>
-                        {% elif forloop.last%}<td style="width:100px">{{i}}</td>
-                        {% else %}<td style="width:100px">{{i}}</td>{% endif %}
-                    {% endfor %}
+                    <td style="; width:100px;height:30px"><a href="{% url 'stock-detail' stock.stock.code %}">{{stock.stock.name}}</a></td>
+                    <td style="width:100px;">{{stock.stock.code}}</td>
+                    <td style="width:100px">{{stock.open}}</td>
+                    <td style="width:100px">{{stock.high}}</td>
+                    <td style="width:100px">{{stock.low}}</td>
+                    <td style="width:100px">{{stock.close}}</td>
                 </tr>
             {% endfor%}
             <td><br><a href="{% url 'sector-list'%}">查看全部</a></td>

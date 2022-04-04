@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Stock, Sector, News,StockInformation , HistoryPrice, SubList
+from .models import Stock, Sector, News,StockInformation , HistoryPrice, SubList, HistoryPriceSummary
 
 # admin.site.register(Stock)
 admin.site.register(Sector)
@@ -33,3 +33,9 @@ class StockInformationAdmin(admin.ModelAdmin):
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
     search_fields = ['name','code']
+
+@admin.register(HistoryPriceSummary) 
+class HisSumAdmin(admin.ModelAdmin):
+    list_display = ['date', 'stock','open','close','high','low']
+    search_fields = ['stock']
+    list_filter = ['date']

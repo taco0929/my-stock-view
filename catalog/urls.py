@@ -18,6 +18,7 @@ urlpatterns += [
     path('stocks/<str:pk>/add/',account_views.AddSubItem,name='stock-detail-add'),
     path('news/<str:pk>/',views.NewsDetailView.as_view(),name='news-content'),
     path('stocks/<str:pk>/history_price/', views.HistoryPriceDetailView, name='history-price'),
+    path('stocks/<str:pk>/history_price_summary/',views.HistoryPriceSummaryDetailView,name='history-price-summary')
 
 ]
 

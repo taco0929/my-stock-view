@@ -25,7 +25,12 @@ class Stock(models.Model):
     code = models.CharField(max_length=10, help_text='Enter code of the stock', blank=False, primary_key=True)
     sector = models.ForeignKey(Sector, on_delete=models.SET_NULL,null=True)
     
-    
+    def save(self,*args,**kwargs):
+        super().save(*args,**kwargs)
+        inf = StockInformation(stock=self)
+        inf.save()
+        
+        
     def __str__(self):
         '''
         Return the the code of the stock
@@ -46,13 +51,19 @@ class StockInformation(models.Model):
     stock = models.OneToOneField(Stock,on_delete=models.CASCADE,primary_key=True)
     business_describ = models.TextField(help_text='Enter the describtion of the corps.',null=True,blank=True)    
     market_value = models.IntegerField(help_text='Enter the market value of the corps',null=True,blank=True)
+    roe = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
+    roa = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
+    revenue = models.IntegerField(max_length=20,null=True,blank=True)
+    revenue_growth = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
+    revenue_per_share = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
 
     def __str__(self):
         return self.stock.code
 
     
 class News(models.Model):
-    title = models.CharField(max_length=100,help_text='Enter the title of the news',primary_key=True)
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=100,help_text='Enter the title of the news')
     url=models.URLField(max_length=255,null=True,blank=True)
     content = models.TextField(help_text='Enter the content of the news', null=True, blank=True)
     date_time = models.DateTimeField(default=datetime.datetime.now)
@@ -61,44 +72,21 @@ class News(models.Model):
     def display_related_stock(self):
         return ', '.join(stock.code for stock in self.related_stock.all()[:3])
     
+    def __str__(self):
+        return self.title
     class Meta:
-        ordering = ['date_time']
+        ordering = ['-date_time']
 
     
 
 class HistoryPrice(models.Model):
-    stock_code = models.ForeignKey(Stock,on_delete=models.SET_NULL,null=True)
+    stock_code = models.ForeignKey(Stock,on_delete=models.CASCADE,null=True)
     date_time = models.DateTimeField(db_index=True,)
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-    
     
     def __str__(self):
         '''Return information of the stock'''
         return f'{self.stock_code.code} {self.date_time} {self.price}'
-    
-    def get_latest_datetime(self,stock_code):            
-        latest = HistoryPrice.objects.order_by('date_time').filter(stock_code__code=stock_code).exclude(price=None).values()
-        if not latest:  return None
-        return latest.last()['date_time'].strftime('%Y-%m-%d %H:%M:%S')
-    def get_latest_price(self,stock_code):
-        latest = HistoryPrice.objects.order_by('date_time').filter(stock_code__code=stock_code).exclude(price=None).values()
-        if not latest:  return None
-        return str(latest.last()['price'])
-    
-
-    def get_open_price(self,stock_code):
-        open = HistoryPrice.objects.order_by('date_time').filter(stock_code__code=stock_code,date_time__date=datetime.date.today(),date_time__time='09:00:00').exclude(price=None).values()
-        if not open:    return None
-        return str(open.last()['price'])
-    
-    def get_today_high(self,stock_code):
-        high = HistoryPrice.objects.order_by('date_time__date','price').filter(stock_code__code=stock_code,date_time__date=datetime.date.today()).exclude(price=None).values()
-        if not high:    
-            return None
-        return str(high.last()['price'])
-    def get_today_low(self,stock_code):
-        low = HistoryPrice.objects.order_by('date_time__date','price').filter(stock_code__code=stock_code,date_time__time=datetime.date.today()).exclude(price=None).values().first()
-        return str(low.last()['price'])
     
     class Meta:
         ordering = ['stock_code','date_time']
@@ -111,6 +99,28 @@ class SubList(models.Model):
     def __str__(self):
         return self.username.username
     
-
+class HistoryPriceSummary(models.Model):
+    stock = models.ForeignKey(Stock,on_delete=models.CASCADE,null=True)
+    date = models.DateField(db_index=True)
+    high = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    low = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    open = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    close = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    change = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    change_p = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    
+    
+    
+    def __str__(self):
+        return self.stock.code
+    
+    def save(self,*args,**kwargs):
+        if self.open and self.close:
+            self.change = self.close-self.open
+            self.change_p = (self.close-self.open)/self.open*100
+        super().save(*args,**kwargs)
+    
+    class Meta:
+        ordering = ['stock','-date']
     
         

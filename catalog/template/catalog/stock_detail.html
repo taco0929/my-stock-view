@@ -2,7 +2,8 @@
 
 {% block title %}{{stock.name}}{% endblock %}
 {% block content %}
-    <h1>Information of {{stock.name}}</h1>
+    <p></p>
+    <h1>公司資訊： {{stock.name}}</h1>
     {% if user.is_authenticated %}<a href="{% url 'stock-detail-add' stock.code %}">新增至我的列表</a>{% endif %}
     <br><br>
     <div>
@@ -19,76 +20,122 @@
                             </td>
                         </tr>
                         <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Sector: </strong></td>
+                            <td style="border:1px solid black; width:150px;">{{stock.sector_id}}</td>
+                        </tr>
+                        <tr>
                             <td  style="border:1px solid black"><strong>Latest Price:</strong></td>
-                            <td style="border:1px solid black">{{latest}}</td>
+                            <td style="border:1px solid black">{{latest_p}}</td>
                         </tr>
                         <tr>
                             <td style="border:1px solid black"><strong>Open price:</strong></td>
-                            <td style="border:1px solid black">{{open}}</td>
+                            <td style="border:1px solid black">{{h_inf.open}}</td>
                         </tr>
                         <tr>
                             <td style="border:1px solid black"><strong>Changes: </strong></td>
-                            <td style="border:1px solid black">{{changes}}</td>
+                            <td style="border:1px solid black">{% if change %}{{h_inf.change}}{% else %}-{% endif %}</td>
 
                             
                         </tr>
                         <tr>
                             <td style="border:1px solid black"><strong>%Changes: </strong></td>
-                            <td style="border:1px solid black">{{changes_percent}}</td>
+                            <td style="border:1px solid black">{% if change_perc%} {{h_inf.change_p}}  %{% else %}0  %{% endif %}</td>
 
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black"><strong>Today High: </strong></td>
+                            <td style="border:1px solid black">{{h_inf.high}}</td>
+
+                            
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black"><strong>Today Low: </strong></td>
+                            <td style="border:1px solid black">{{h_inf.low}}</td>
+
+                            
                         </tr>
 
                     </table>
                 </td>
                 <td valign="top";>
                     <table style="border:5px double black;">
-                        <tr>
-                            <td style="border:1px solid black; width:150px;"><strong>Sector: </strong></td>
-                            <td style="border:1px solid black; width:150px;">{{stock.sector_id}}</td>
-                        </tr>
+                       
                         <tr>
                             <td style="border:1px solid black; width:150px;"><strong>Market value: </strong>
                             </td>
-                            <td style="border:1px solid black; width:150px;">{{stock_inf.market_value}}
+                            <td style="border:1px solid black; width:150px;">{{inf.market_value}}
                             </td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Return on Equity: </strong>
+                            </td>
+                            <td style="border:1px solid black; width:150px;">{{inf.roe}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Return on Assets: </strong>
+                            </td>
+                            <td style="border:1px solid black; width:150px;">{{inf.roa}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Revenue: </strong>
+                            </td>
+                            <td style="border:1px solid black; width:150px;">{{inf.revenue}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Revenue growth: </strong>
+                            </td>
+                            <td style="border:1px solid black; width:150px;">{{inf.revenue_growth}}&nbsp&nbsp%
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid black; width:150px;"><strong>Revenue per share: </strong>
+                            </td>
+                            <td style="border:1px solid black; width:150px;">{{inf.revenue_per_share}}
+                            </td>
+                        </tr>
 
                     </table>
                 </td>
             </tr>
         </table>
+        <a href="{% url 'history-price-summary' stock.code %}">查看歷史盤中資訊</a>
 </div>
+<br>
 <div>
-    <h3>Today's Price</h3>
-    <a href="{% url 'history-price' stock.code %}">View history price</a>
+    <h3>今日價格</h3>
+    <p><a href="{% url 'history-price' stock.code %}">查看歷史價格</a></p>
     <table style="border:5px double black;">
-        {% if today_price %}
-            {% for item in today_price %}
+
+            {% for p in today_p %}
                 <tr>
                     <td style="height:50px;
                     width:300px;
                     text-align:left;
                     margin-left:auto; 
                     margin-right:auto;
-                    border:2px solid black;">
-                        {{item.date_time}}
+                    border:2px solid black;">{{p.date_time}}
+                        
                     </td>
                     <td style="height:50px;
                     width:300px;
                     text-align:left;
                     margin-left:auto; 
                     margin-right:auto;
-                    border:2px solid black;">
-                        {{item.price}}
+                    border:2px solid black;">{{p.price}}
+                        
                     </td>
                 </tr>
             {% endfor %}
-        {% endif %}
+
     </table>
 </div>
 <br><br>
 <div>
     <h3>Company Information</h3>
-    <p>{{stock_inf.business_describ}}</p>
+    <p>{{inf.business_describ}}</p>
 </div><br><br>
 <div>
     <h3>Related News</h3>
@@ -101,7 +148,7 @@
                 {{new.date_time}}
                     </td>
                     <td width=400px>
-                        <a href="{% url 'news-content' new.title %}">{{new.title}}</a>
+                        <a href="{% url 'news-content' new.id %}">{{new.title}}</a>
                     </td> 
                 </table>
             </li>

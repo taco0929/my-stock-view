@@ -38,8 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'mathfilters',
+    # custom apps
     'catalog.apps.CatalogConfig',
     'account.apps.AccountConfig',
+    'crawler.apps.CrawlerConfig',
+    # django-q
+    'django_q',
     
 ]
 
@@ -69,6 +74,7 @@ TEMPLATES = [
             ],
             'libraries' :   {
                 'pagination_tags'   :   'catalog.templatetags.pagination_tags',
+                'get_tuple_tags'    :   'catalog.templatetags.get_tuple_tags',
             },
         },
     },
@@ -134,3 +140,12 @@ LOGOUT_REDIRECT_URL = '/'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
+Q_CLUSTER = {
+    'name'      :   'crawlerORM',
+    'workers'   :   1,
+    'timeout'   :   7200,
+    'retry'     :   7260,
+    'orm'       :   'default',
+
+    
+}

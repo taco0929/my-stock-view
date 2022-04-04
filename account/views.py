@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
+import datetime
 
 @user_passes_test(lambda u: not u.is_authenticated)
 def SignUpView(request):
@@ -35,21 +36,23 @@ def SignUpView(request):
 def UserSubList(request):
     user = request.user
     stock_list = user.sublist.stock_list.all()
-    paginator = Paginator(stock_list,25)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
     
     stock_price_list = {}
     for stock in stock_list:
-        stock_price_list[stock] = [
-            HistoryPrice().get_open_price(stock),
-            HistoryPrice().get_latest_price(stock)
-        ]
-        if HistoryPrice().get_open_price(stock) and HistoryPrice().get_latest_price(stock):
-            stock_price_list[stock].append(f'{round((float(HistoryPrice().get_latest_price(stock))-float(HistoryPrice().get_open_price(stock)))/float(HistoryPrice().get_open_price(stock)),2)}%')
-        else:   stock_price_list[stock].append('-')
+        tmp = HistoryPrice.objects.filter(stock_code=stock).last()
+        if tmp: tmp = tmp.date_time.date()
+            
+        stock_price_list[stock] = (
+            HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first().price if HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first() else None,
+            HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).last().price if HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first() else None,
+            HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).last().price - HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first().price if HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first() else None,
+                )
+        
+    stock_price_list = tuple(stock_price_list.items())
     
-    
+    paginator = Paginator(stock_price_list,25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
 
         'stock_list'        :   stock_list,
@@ -112,22 +115,22 @@ def UserMainPage(request,):
                     if n in sublist.stock_list.all():
                         news_list.append(news)
                         break
-        
+
         stock_list = {}
         for stock in sublist.stock_list.all()[:5]:
-            stock_list[stock] = [
-                HistoryPrice().get_open_price(stock),
-                HistoryPrice().get_latest_price(stock)
-            ]
-            if HistoryPrice().get_open_price(stock) and HistoryPrice().get_latest_price(stock):
-                stock_list[stock].append(f'{round((float(HistoryPrice().get_latest_price(stock))-float(HistoryPrice().get_open_price(stock)))/float(HistoryPrice().get_open_price(stock)),2)}%')
-            else:   stock_list[stock].append('-')
-            
-        
+            tmp = HistoryPrice.objects.filter(stock_code=stock).last()
+            if tmp: tmp = tmp.date_time.date()
+               
+            stock_list[stock] = (
+                HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first().price if HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first() else None,
+                HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).last().price if HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first() else None,
+                HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).last().price-HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first().price if HistoryPrice.objects.filter(stock_code=stock,date_time__date=tmp).first() else None)
+
         context = {
             
             'news_list' :   news_list,
             'stock_list':   stock_list,
+            'sublist'   :   sublist,
         }
         return render(request,'./user_page/mainpage_user.html',context=context)
     
