@@ -38,3 +38,5 @@ def hp_sum_ctrl():
         else:   
             print('Finished maintain db-HistoryPriceSummary')
             return
+        
+        

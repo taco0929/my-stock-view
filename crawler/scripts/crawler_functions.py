@@ -97,7 +97,7 @@ def get_stock_his_price(stock:Stock,df):
         for date in df.index:
             his_p = HistoryPriceSummary(
                 stock=stock,
-                date=date,
+                date=datetime.datetime.strptime(date+' +0800', '%Y-%m-%d %z'),
                 open=df.loc[date,'Open'],
                 high=df.loc[date,'High'],
                 low=df.loc[date,'Low'],
@@ -110,15 +110,37 @@ def get_stock_his_price(stock:Stock,df):
         raise e
         
 
-def get_stock_cur_price(stock):
+def get_stock_cur_price(*stock_list):
     '''
     Get current price
     獲取現在股價
     '''
     try:
-        p = twstock.realtime.get(stock)
-        h = HistoryPrice(stock_code=stock,date_time=p['info']['time'],price=p['realtime']['latest_trade_price'])
-        h.save()
+        if not stock_list:   
+            stock_list = Stock.objects.all()
+        for stock in stock_list:
+            try:
+                if type(stock) != Stock:
+                    stock = Stock.objects.get(code=stock)
+            except ObjectDoesNotExist:
+                print(f'Stock item ({stock}) does not exist!')
+                continue
+
+                
+            p = twstock.realtime.get(stock.code)
+            if p['realtime']['latest_trade_price'] == '-':
+                p['realtime']['latest_trade_price'] = p['realtime']['best_bid_price'][0]
+            p['info']['time'] = datetime.datetime.strptime(p['info']['time']+' +0800','%Y-%m-%d %H:%M:%S %z')
+            if not HistoryPrice.objects.filter(stock_code=stock,date_time=p['info']['time']):
+                h = HistoryPrice(
+                    stock_code=stock,
+                    date_time=p['info']['time'],
+                    price=p['realtime']['latest_trade_price']
+                    )
+                h.save()
+                print(f'{stock}.........Done')
+            else:
+                continue
     except Exception as e:
         print(globals())
         print(locals())
@@ -133,20 +155,23 @@ def update_exist_stock_hp_sum(*stock_list):
         for stock in stock_list:
             try:
                 if type(stock) != Stock:
-                    stock = Stock.objects.get(stock)
+                    stock = Stock.objects.get(code=stock)
             except ObjectDoesNotExist:
                 print(f'Stock item ({stock}) does not exist!')
                 continue
             d = twstock.realtime.get(stock.code)
+            if d['realtime']['latest_trade_price'] == '-':
+                d['realtime']['latest_trade_price'] = d['realtime']['best_bid_price'][0]
             his_p = HistoryPriceSummary(
                     stock=stock,
-                    date=d['info']['time'].split()[0],
-                    open=d['open'],
-                    high=d['high'],
-                    low=d['low'],
-                    close=d['realtime']['latest_trade_price']
+                    date=datetime.datetime.strptime(d['info']['time'].split()[0]+' +0800','%Y-%m-%d %z'),
+                    open=float(d['realtime']['open']),
+                    high=float(d['realtime']['high']),
+                    low=float(d['realtime']['low']),
+                    close=float(d['realtime']['latest_trade_price']),
                 )
             his_p.save()
+            print(f'{stock}.........Done')
             time.sleep(0.5)
     except Exception as e:
         print(globals())

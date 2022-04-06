@@ -5,6 +5,7 @@ import datetime
 from django.db.models import Q
 import time
 import re
+import pytz
 
 def get_news(*stock_list,period='1d'):
     if not stock_list:  
@@ -31,11 +32,13 @@ def get_news(*stock_list,period='1d'):
                 n = News.objects.get(title=news['title'])
             except ObjectDoesNotExist:
                 if re.search(f'{q}',news['title']):
+                    if news['datetime']:
+                        news['datetime'].replace(tzinfo=pytz.timezone('Asia/Taipei'))
                     n = News(
                         title=news['title'],
                         url=news['link'],
                         content=news['desc'],
-                        date_time=news['datetime'] or datetime.datetime.now(),
+                        date_time=news['datetime'] or datetime.datetime.now(tz=pytz.timezone('Asia/Taipei')),
                     )
                     n.save()
                     n.related_stock.add(stock)
@@ -44,5 +47,3 @@ def get_news(*stock_list,period='1d'):
             n.related_stock.add(stock)
         time.sleep(1)
             
-            
-                

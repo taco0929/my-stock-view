@@ -29,17 +29,17 @@
                         </tr>
                         <tr>
                             <td style="border:1px solid black"><strong>Open price:</strong></td>
-                            <td style="border:1px solid black">{{h_inf.open}}</td>
+                            <td style="border:1px solid black">{{open_p}}</td>
                         </tr>
                         <tr>
                             <td style="border:1px solid black"><strong>Changes: </strong></td>
-                            <td style="border:1px solid black">{% if h_inf.change %}{{h_inf.change}}{% else %}-{% endif %}</td>
+                            <td style="border:1px solid black">{% if change %}{{change}}{% else %}0{% endif %}</td>
 
                             
                         </tr>
                         <tr>
                             <td style="border:1px solid black"><strong>%Changes: </strong></td>
-                            <td style="border:1px solid black">{% if h_inf.change_p%} {{h_inf.change_p}}  %{% else %}0  %{% endif %}</td>
+                            <td style="border:1px solid black">{% if change_p%} {{change_p}}  %{% else %}0  %{% endif %}</td>
 
                         </tr>
                         <tr>

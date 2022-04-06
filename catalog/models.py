@@ -80,7 +80,7 @@ class News(models.Model):
 
 class HistoryPrice(models.Model):
     stock_code = models.ForeignKey(Stock,on_delete=models.CASCADE,null=True)
-    date_time = models.DateTimeField(db_index=True,)
+    date_time = models.DateTimeField(db_index=True,help_text='default timezone:UTF')
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     
     def __str__(self):

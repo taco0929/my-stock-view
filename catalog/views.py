@@ -48,9 +48,12 @@ def StockDetailView(request,pk):
     stock = Stock.objects.get(code=pk)
     inf = StockInformation.objects.get(stock=stock)
     
-    h_inf =  HistoryPriceSummary.objects.filter(stock=stock).last()
-    latest_p = HistoryPrice.objects.filter(stock_code=stock).last() or HistoryPriceSummary.objects.filter(stock=stock).last().close
+    h_inf =  HistoryPriceSummary.objects.filter(stock=stock).order_by('date').last()
+    latest_p = HistoryPrice.objects.filter(stock_code=stock).last().price or HistoryPriceSummary.objects.filter(stock=stock).last().close
+    open_p = HistoryPrice.objects.filter(stock_code=stock).first().price or HistoryPriceSummary.objects.filter(stock=stock).first().open
     today_p = HistoryPrice.objects.filter(stock_code=stock,date_time__date=datetime.date.today()).order_by('-date_time')[:10] or HistoryPrice.objects.filter(stock_code=stock,date_time__date=h_inf.date).order_by('-date_time')[:10]
+    change = latest_p - open_p
+    change_p = round(change / open_p,2)
     
     
     context = {
@@ -58,7 +61,10 @@ def StockDetailView(request,pk):
         'inf'       :       inf,
         'h_inf'     :       h_inf,
         'latest_p'  :       latest_p,
+        'open_p'    :       open_p,
         'today_p'   :       today_p,
+        'change'    :       change,
+        'change_p'  :       change_p,
     }
     return render(request,'./catalog/stock_detail.html',context=context)
      
