@@ -41,6 +41,7 @@ urlpatterns += [
     path('', RedirectView.as_view(url='/catalog/')),
     path('account/',include('django.contrib.auth.urls')),
     path('account/',include('account.urls')),
+    path('line_bot/',include('mylinebot.urls'))
     
 
 ]

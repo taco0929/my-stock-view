@@ -6,6 +6,19 @@ from datetime import datetime
 from django.urls import reverse,reverse_lazy
 from django.contrib.auth.models import User
 import datetime
+from my_stock_view.settings import get_hash
+
+class UserLineID(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,)
+    line_id = models.CharField(max_length=63,blank=True,default=None,null=True)
+    activate = models.BooleanField(default=True)
+    pushNews = models.BooleanField(default=True)
+    pushPrice = models.BooleanField(default=True)
+    token = models.CharField(max_length=6,null=True,blank=True)
+    token_ini = models.DateTimeField(null=True,blank=True)
+
+    def __str__(self):
+        return self.user.username
 
 
 class Sector(models.Model):
@@ -53,7 +66,7 @@ class StockInformation(models.Model):
     market_value = models.BigIntegerField(help_text='Enter the market value of the corps',null=True,blank=True)
     roe = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
     roa = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
-    revenue = models.BigIntegerField(max_length=18,null=True,blank=True)
+    revenue = models.BigIntegerField(null=True,blank=True)
     revenue_growth = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
     revenue_per_share = models.DecimalField(max_digits=20,decimal_places=4,null=True,blank=True)
 
@@ -66,7 +79,7 @@ class News(models.Model):
     url=models.TextField(max_length=255,null=True,blank=True)
     content = models.TextField(help_text='Enter the content of the news', null=True, blank=True)
     date_time = models.DateTimeField(default=datetime.datetime.now)
-    related_stock = models.ManyToManyField(Stock,null=True, blank=True)
+    related_stock = models.ManyToManyField(Stock, blank=True)
     
     def display_related_stock(self):
         return ', '.join(stock.code for stock in self.related_stock.all()[:3])
@@ -93,7 +106,7 @@ class HistoryPrice(models.Model):
   
 class SubList(models.Model):
     username = models.OneToOneField(User,primary_key=True,on_delete=models.CASCADE)
-    stock_list = models.ManyToManyField(Stock,null=True,blank=True)
+    stock_list = models.ManyToManyField(Stock,blank=True)
 
     def __str__(self):
         return self.username.username

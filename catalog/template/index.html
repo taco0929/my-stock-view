@@ -25,14 +25,16 @@
         <th colspan="2"><h4>隨便看看：</h4></th>
         {% if price_list %}
             {% for stock in price_list %}
-                <tr>
-                    <td style="; width:100px;height:30px"><a href="{% url 'stock-detail' stock.stock.code %}">{{stock.stock.name}}</a></td>
-                    <td style="width:100px;">{{stock.stock.code}}</td>
-                    <td style="width:100px">{{stock.open}}</td>
-                    <td style="width:100px">{{stock.high}}</td>
-                    <td style="width:100px">{{stock.low}}</td>
-                    <td style="width:100px">{{stock.close}}</td>
-                </tr>
+                {% if stock %}
+                    <tr>
+                        <td style="; width:100px;height:30px"><a href="{% url 'stock-detail' stock.stock.code %}">{{stock.stock.name}}</a></td>
+                        <td style="width:100px;">{{stock.stock.code}}</td>
+                        <td style="width:100px">{{stock.open}}</td>
+                        <td style="width:100px">{{stock.high}}</td>
+                        <td style="width:100px">{{stock.low}}</td>
+                        <td style="width:100px">{{stock.close}}</td>
+                    </tr>
+                {% endif %}
             {% endfor%}
             <td><br><a href="{% url 'sector-list'%}">查看全部</a></td>
         {% else %}

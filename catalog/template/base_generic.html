@@ -44,6 +44,7 @@
                     {% if user.is_authenticated %}
                         歡迎，<a href="{% url 'account:user-main'%}">{{user.get_username}}</a>
                         <li><a href="{% url 'account:sublist' %}">我的列表</a></li>
+                        <li><a href="{% url 'account:user-add-line'%}">連結Line帳號</a></li>
                         <li><a href="{% url 'logout' %}?next=/catalog/">Logout</a></li>
                     {% else %}
                         <p>You are not logged in.</p>

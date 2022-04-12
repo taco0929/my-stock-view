@@ -3,6 +3,7 @@ from crawler.scripts.news_crawler import *
 from crawler.scripts.crawler_functions import *
 import datetime
 import pytz
+from  my_stock_view import settings
 
 class Command(BaseCommand):
     def add_arguments(self, parser) -> None:
@@ -25,13 +26,13 @@ class Command(BaseCommand):
                 get_news()
                 self.stdout.write(self.style.SUCCESS('Finished crawling news.'))
             elif crawl_object == 'stock':
-                if (datetime.date.today().isoweekday()==6 or datetime.date.today().isoweekday()==7) or datetime.datetime.now(tz=pytz.timezone('Asia/Taipei')).hour > 14 or datetime.datetime.now(tz=pytz.timezone('Asia/Taipei')).hour < 9:
+                if (datetime.date.today().isoweekday()==6 or datetime.date.today().isoweekday()==7) or datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE)).hour > 14 or datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE)).hour < 9:
                     continue
                 get_stock_cur_price()
                 self.stdout.write(self.style.SUCCESS('Finished crawling current stock price.'))
                 
             elif crawl_object == 'stock_sum':
-                if datetime.datetime.now(tz=pytz.timezone('Asia/Taipei')).hour > 14 or datetime.datetime.now(tz=pytz.timezone('Asia/Taipei')).hour < 9:
+                if datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE)).hour > 14 or datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE)).hour < 9:
                     continue
                 update_exist_stock_hp_sum()
                 self.stdout.write(self.style.SUCCESS('Finished crawling stock price summary.'))

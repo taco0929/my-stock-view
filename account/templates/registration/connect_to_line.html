@@ -1,0 +1,27 @@
+{% extends 'base_generic.html'%}
+{% block title%}連結Line{% endblock%}
+
+{% block content %}
+{% if msg %}<strong>{{msg}}</strong>{% endif %}
+<h2>連接Line ID</h2>
+
+<p>
+    加入我們的Line 帳號，以向你推送即時資訊！<br>
+    步驟一：加入官方Line ID：<strong>
+        @687oreey</strong><br>
+    步驟二：點擊下方"產生驗證碼"，你將會得到一組驗證碼(時效五分鐘)<br>
+    步驟三：於官方Line ID 輸入驗證碼，待系統跳出“連結成功”<br>
+    
+</p>
+
+<form action="" method="POST">
+    {% csrf_token%}
+    <input type="search" value="{% if token %}{{token}}{% endif %}"   >
+    <button type="submit" name="input_lineID" value=1>產生驗證碼</button>
+</form>
+<br>
+<form action="" method="POST">
+    {% csrf_token%}
+    <button type="submit" name="cancel" value=1>取消連結</button>
+</form>
+{% endblock %}

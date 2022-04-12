@@ -8,8 +8,11 @@ import twstock
 from django.core.exceptions import ObjectDoesNotExist
 import time
 from .setting import *
+import logging
+logger = logging.getLogger('testlogger')
 
 def get_stock_list():
+    logger.info('Starting...(get_stock_list)')
     '''
     Build up data-base
     建立資料庫
@@ -20,29 +23,33 @@ def get_stock_list():
         df = pd.read_html(html_doc)[0]
         df[0] = df[0].str.split()
         
-        if STOCK_LIST:  STOCK_LIST.sort()
-
+        if STOCK_LIST:  
+            for i,v in enumerate(STOCK_LIST):
+                STOCK_LIST[i] = str(v)
+            STOCK_LIST.sort()
+            logger.info('STOCK_LIST sorted' )
+        else:   logger.info('STOCK_LIST is empty, loading every stock')
+        
         for i in range(2,len(df)):
             if STOCK_LIST:
-                STOCK_LIST[0] = str(STOCK_LIST[0])
                 if STOCK_LIST[0] not in df.iloc[i,0]:
                     continue
                 
-            try:
-                sector = Sector.objects.get(name=df.iloc[i,4])
-            except ObjectDoesNotExist:
-                sector = Sector(name=df.iloc[i,4])
-                sector.save()
-            if not Stock.objects.filter(code=df.iloc[i,0][0]):
-                s = Stock(name=df.iloc[i,0][1],code=df.iloc[i,0][0],sector=sector)
-                
-                # Need to update logging
-                print(s.sector)
-                print(s)
-                s.save()
+                logger.info(f'Process: {STOCK_LIST[0]}')
+                sector, created = Sector.objects.get_or_create(name=df.iloc[i,4])
+                logger.info(f'Loading')
+                s,created = Stock.objects.get_or_create(name=df.iloc[i,0][1],code=df.iloc[i,0][0],sector=sector)
+                if created: logger.info(f'Process: {STOCK_LIST[0]} created')
                 get_stock_information(s)
-            if STOCK_LIST:
                 STOCK_LIST.pop(0)
+            else:
+                logger.info(f'Process: {STOCK_LIST[0]}')
+                sector, created = Sector.objects.get_or_create(name=df.iloc[i,4])
+                logger.info(f'Loading ')
+                s,created = Stock.objects.get_or_create(name=df.iloc[i,0][1],code=df.iloc[i,0][0],sector=sector)
+                if created: logger.info(f'Process: {STOCK_LIST[0]} created')
+                get_stock_information(s)
+                
     except Exception as e:
         print(globals())
         print(locals())
@@ -55,6 +62,7 @@ def get_stock_information(s:Stock,start='2022-1-1',end=datetime.date.today()):
     Use yahoo finance api to get and stock information
     使用yahoo finance api獲取股票資訊
     '''
+    logger.info(f'Updating info for {s}')
     try: 
         ticker = yf.Ticker(f'{s.code}.TW')
         inf = ticker.info
@@ -70,22 +78,21 @@ def get_stock_information(s:Stock,start='2022-1-1',end=datetime.date.today()):
             }
         for field in fields:
             fields[field] = inf[field] if field in inf else None
-        s_inf = StockInformation(
-            stock=s,
-            business_describ=fields['longBusinessSummary'],
-            market_value=fields['enterpriseValue'],
-            roe=fields['returnOnEquity'] ,
-            roa=fields['returnOnAssets'],
-            revenue=fields['totalRevenue'],
-            revenue_growth=fields['revenueGrowth'],
-            revenue_per_share=fields['revenuePerShare'],
-            )
+            
+        s_inf, created= StockInformation.objects.get_or_create(stock=s)
+        s_inf.business_describ=fields['longBusinessSummary']
+        s_inf.market_value=fields['enterpriseValue']
+        s_inf.roe=fields['returnOnEquity']
+        s_inf.roa=fields['returnOnAssets']
+        s_inf.revenue=fields['totalRevenue']
+        s_inf.revenue_growth=fields['revenueGrowth']
+        s_inf.revenue_per_share=fields['revenuePerShare']
         s_inf.save()
     except Exception as e:
         print(globals())
         print(locals())
         raise e
-        
+    logger.info(f'Finished updating info for {s}')
     get_stock_his_price(s,his)
 
 def get_stock_his_price(stock:Stock,df):
@@ -93,17 +100,25 @@ def get_stock_his_price(stock:Stock,df):
     Pass in pandas.DataFrame (yfinance.Tickers.history()) to save history price summary
     傳入 pandas.DataFrame (yfinance.Tickers.history()) 以取得盤中價格資訊
     '''
+    logger.info(f'Start getting his price for {stock}')
     try:
+        
         for date in df.index:
-            his_p = HistoryPriceSummary(
-                stock=stock,
-                date=datetime.datetime.strptime(date+' +0800', '%Y-%m-%d %z'),
-                open=df.loc[date,'Open'],
-                high=df.loc[date,'High'],
-                low=df.loc[date,'Low'],
-                close=df.loc[date,'Close']
-            )
-            his_p.save()
+            if not HistoryPriceSummary.objects.filter(stock=stock,date=date):
+                if type(date) ==pd.Timestamp:
+                    date = date.date()
+                if type(date) == datetime.date:
+                    date = str(date)
+                his_p = HistoryPriceSummary(
+                    stock=stock,
+                    date=datetime.datetime.strptime(date+' +0800', '%Y-%m-%d %z'),
+                    open=df.loc[date,'Open'],
+                    high=df.loc[date,'High'],
+                    low=df.loc[date,'Low'],
+                    close=df.loc[date,'Close']
+                )
+                his_p.save()
+        logger.info(f'Finished getting his price for {stock}')
     except Exception as e:
         print(globals())
         print(locals())

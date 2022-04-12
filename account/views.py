@@ -6,13 +6,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate,login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import user_passes_test,login_required
-from catalog.models import HistoryPrice, SubList,Stock
+from catalog.models import HistoryPrice, SubList,Stock, UserLineID
 from django.views import generic
 from django.core.paginator import Paginator
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
 import datetime
+import pytz
+from my_stock_view.settings import TIME_ZONE
 
 @user_passes_test(lambda u: not u.is_authenticated)
 def SignUpView(request):
@@ -63,7 +65,7 @@ def UserSubList(request):
     return render(request,'./user_page/sublist_user.html',context=context)
     
     
-from .form import SubListItemUpdateForm, SublistItemDeleteForm
+from .form import SubListItemUpdateForm, SublistItemDeleteForm, UserLineIdUpdateForm
 from django.core.exceptions import ObjectDoesNotExist
 
 def DeleteSubItem(request,pk):
@@ -96,7 +98,7 @@ def DeleteSubItem(request,pk):
 
 # http://localhost:8000/account/sublist/delete/0001/
 
-from catalog.models import SubList, News
+from catalog.models import SubList, News, UserLineID
 
 def UserMainPage(request,):
     if request.user.is_authenticated:
@@ -106,6 +108,11 @@ def UserMainPage(request,):
         except ObjectDoesNotExist:
             sublist = SubList(username=user)
             sublist.save()
+        try:
+            user_line = UserLineID.objects.get(user=user)
+        except ObjectDoesNotExist:
+            user_line = UserLineID(user=user)
+            user_line.save()
         news_list = []
         
         for news in News.objects.all().order_by('-date_time'):
@@ -167,5 +174,36 @@ def AddSubItem(request,pk):
 
         return redirect('login')
 
+import random, string  
+def ConnectLine(request):
+    if request.user.is_authenticated:
+
+        user_line = request.user.userlineid
+        form = UserLineIdUpdateForm(instance=user_line)
         
+        if request.method == 'POST':
+            if request.POST.get('input_lineID',None):
+                u = UserLineID.objects.get(user=request.user)
+                token = ''.join(random.choice((string.ascii_lowercase+string.digits)) for _ in range(6))
+                timestamp = datetime.datetime.now(tz=pytz.timezone(TIME_ZONE))
+                u.token = token
+                u.token_ini = timestamp
+                u.save()
+                return render(request,'registration/connect_to_line.html',context = {'msg':'請於官方帳號輸入驗證碼！', 'token' : token})
+            elif request.POST.get('cancel'):
+                u = UserLineID.objects.get(user=request.user)
+                u.line_id = None
+                u.save()
+                msg = '已取消連結！'
+                return render(request,'registration/connect_to_line.html',context = {'msg':msg})
+
+        else:
+            form = UserLineIdUpdateForm()
+            return render(request,'registration/connect_to_line.html',context = {'form':form})
+        
+    else:
+        return redirect('login')
+    
+
+            
 

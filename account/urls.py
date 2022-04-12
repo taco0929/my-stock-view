@@ -14,5 +14,7 @@ urlpatterns += [
 
 urlpatterns += [
     path('sublist/delete/<str:pk>/',views.DeleteSubItem,name='delete-item'),
-    path('',views.UserMainPage,name='user-main')
+    path('',views.UserMainPage,name='user-main'),
+    path('add_line/',views.ConnectLine, name='user-add-line'),
+
 ]
