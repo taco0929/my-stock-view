@@ -36,7 +36,7 @@ class Sector(models.Model):
 class Stock(models.Model):
     name = models.CharField(max_length=20, help_text='Enter name of the stock',blank=False)
     code = models.CharField(max_length=10, help_text='Enter code of the stock', blank=False, primary_key=True)
-    sector = models.ForeignKey(Sector, on_delete=models.SET_NULL,null=True)
+    sector = models.ForeignKey(Sector, on_delete=models.CASCADE,null=True)
     
     def save(self,*args,**kwargs):
         super().save(*args,**kwargs)

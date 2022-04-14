@@ -9,7 +9,24 @@ from django.core.exceptions import ObjectDoesNotExist
 import time
 from .setting import *
 import logging
+import copy
 logger = logging.getLogger('testlogger')
+
+def get_stock_list_process(df:pd.DataFrame,stock_list:list or None):
+    for i in range(2,len(df)):
+        print(stock_list[0],df.iloc[i,0])
+        if stock_list:
+            if stock_list[0] not in df.iloc[i,0]:
+                continue
+        logger.info(f'Process: {df.iloc[i,0]}')
+        sector, created = Sector.objects.get_or_create(name=df.iloc[i,4])
+        s,created = Stock.objects.get_or_create(name=df.iloc[i,0][1],code=df.iloc[i,0][0],sector=sector)
+        if created: logger.info(f'Process: {stock_list[0]} created')
+        get_stock_information(s)
+        stock_list.pop(0)
+    if len(stock_list)>1: 
+        get_stock_list_process(df,stock_list[1:])
+        
 
 def get_stock_list():
     logger.info('Starting...(get_stock_list)')
@@ -24,31 +41,15 @@ def get_stock_list():
         df[0] = df[0].str.split()
         
         if STOCK_LIST:  
-            for i,v in enumerate(STOCK_LIST):
-                STOCK_LIST[i] = str(v)
-            STOCK_LIST.sort()
+            stock_list = set()
+            for stock in STOCK_LIST:
+                stock_list.add(str(stock))
+            stock_list = list(stock_list)
+            stock_list.sort()
             logger.info('STOCK_LIST sorted' )
         else:   logger.info('STOCK_LIST is empty, loading every stock')
         
-        for i in range(2,len(df)):
-            if STOCK_LIST:
-                if STOCK_LIST[0] not in df.iloc[i,0]:
-                    continue
-                
-                logger.info(f'Process: {STOCK_LIST[0]}')
-                sector, created = Sector.objects.get_or_create(name=df.iloc[i,4])
-                logger.info(f'Loading')
-                s,created = Stock.objects.get_or_create(name=df.iloc[i,0][1],code=df.iloc[i,0][0],sector=sector)
-                if created: logger.info(f'Process: {STOCK_LIST[0]} created')
-                get_stock_information(s)
-                STOCK_LIST.pop(0)
-            else:
-                logger.info(f'Process: {STOCK_LIST[0]}')
-                sector, created = Sector.objects.get_or_create(name=df.iloc[i,4])
-                logger.info(f'Loading ')
-                s,created = Stock.objects.get_or_create(name=df.iloc[i,0][1],code=df.iloc[i,0][0],sector=sector)
-                if created: logger.info(f'Process: {STOCK_LIST[0]} created')
-                get_stock_information(s)
+        get_stock_list_process(df,stock_list)
                 
     except Exception as e:
         print(globals())
