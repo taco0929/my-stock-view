@@ -9,7 +9,7 @@ def getLineUser(user:User):
         print(f'User {user} not found!')
         return None
     try:
-        return line_bot_api.get_profile(id)['userId']
+        return line_bot_api.get_profile(id).user_id 
     except LineBotApiError as e:
         print('Error occured:   ')
         print(e)

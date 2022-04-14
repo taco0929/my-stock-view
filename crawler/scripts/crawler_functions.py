@@ -142,21 +142,27 @@ def get_stock_cur_price(*stock_list):
                 print(f'Stock item ({stock}) does not exist!')
                 continue
 
-                
             p = twstock.realtime.get(stock.code)
-            if p['realtime']['latest_trade_price'] == '-':
-                p['realtime']['latest_trade_price'] = p['realtime']['best_bid_price'][0]
-            p['info']['time'] = datetime.datetime.strptime(p['info']['time']+' +0800','%Y-%m-%d %H:%M:%S %z')
-            if not HistoryPrice.objects.filter(stock_code=stock,date_time=p['info']['time']):
-                h = HistoryPrice(
-                    stock_code=stock,
-                    date_time=p['info']['time'],
-                    price=p['realtime']['latest_trade_price']
-                    )
-                h.save()
-                print(f'{stock}.........Done')
+            if not p['success']:
+                p = yf.Ticker(f'{stock.code}.TW')
+                df = p.history(period="1d",interval="1m")
+                if not HistoryPrice.objects.filter(stock_code=stock,date_time=datetime.datetime.strptime(str(df.index[-1]),'%Y-%m-%d %H:%M:%S%z')):
+                    HistoryPrice.objects.create(stock_code=stock,date_time=datetime.datetime.strptime(str(df.index[-1]),'%Y-%m-%d %H:%M:%S%z'),price=df.iloc[-1,0])
+                print(f'{stock}.........Done (yfinance)')
             else:
-                continue
+                if p['realtime']['latest_trade_price'] == '-':
+                    p['realtime']['latest_trade_price'] = p['realtime']['best_bid_price'][0]
+                p['info']['time'] = datetime.datetime.strptime(p['info']['time']+' +0800','%Y-%m-%d %H:%M:%S %z')
+                if not HistoryPrice.objects.filter(stock_code=stock,date_time=p['info']['time']):
+                    h = HistoryPrice(
+                        stock_code=stock,
+                        date_time=p['info']['time'],
+                        price=p['realtime']['latest_trade_price']
+                        )
+                    h.save()
+                else:
+                    continue
+                print(f'{stock}.........Done (twstock)')
     except Exception as e:
         print(globals())
         print(locals())

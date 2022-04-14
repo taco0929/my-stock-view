@@ -47,7 +47,7 @@ class LineBotTest(TestCase):
         
         return msg
     
-    def test_recieve_msg(self,input='股票資訊'):
+    def test_recieve_msg(self,input='股價 2330'):
         r = botResponse(self.create_webhook(input))
         msg = r.parse_msg()
         logger.info(msg)

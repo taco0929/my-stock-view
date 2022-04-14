@@ -6,6 +6,7 @@ from linebot.models import TextSendMessage
 import logging
 import pytz
 from my_stock_view import settings
+from catalog.models import UserLineID
 logger = logging.getLogger('testlogger')
 
 now = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
@@ -24,9 +25,12 @@ def genMsg(msg:str or dict)->str:
 def PushMessages(user:User, msg:dict() or str()):
     
     text = genMsg(msg)
-        
+    
+    id = UserLineID.objects.get(user=user).line_id
+    if not id:  return 
     try:
-        line_bot_api.push_message(getLineUser(user),TextSendMessage(text=text))  
+        print(id)
+        line_bot_api.push_message(id,TextSendMessage(text=text))  
     except LineBotApiError as e:
         print(e)
         return

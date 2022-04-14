@@ -16,11 +16,11 @@ MAX_NEWS_NUMBER = 5000
 # Oldest date of saved HistoryPrice per Stock
 # Supported format: \d+\w, where \w has following options:
 # m : month, w : week, d: day, h : hour
-OLDEST_HIS_PRICE = '3m'
+OLDEST_HIS_PRICE = '1m'
 
 # Oldest date of saved HistoryPriceSummary per Stock
 # Supported format: \d+\w, where \w has following options:
 # m : month, w : week, d: day, h : hour
-OLDEST_HIS_PRICE_SUM = '12m'
+OLDEST_HIS_PRICE_SUM = '2m'
 
 

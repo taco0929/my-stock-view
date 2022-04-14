@@ -1,7 +1,8 @@
 from catalog.models import *
+from my_stock_view.settings import TIME_ZONE
 from .setting import *
 import re
-import datetime
+import datetime,pytz
 
 DATE_DICTIONARY = {
     'm' : datetime.timedelta(days=30),       # month
@@ -21,7 +22,7 @@ def news_ctrl():
 
 def hp_ctrl():
     delta = DATE_DICTIONARY[parse_time_period(OLDEST_HIS_PRICE)['s']]*int(parse_time_period(OLDEST_HIS_PRICE)['d'])
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=pytz.timezone(TIME_ZONE))
     for his in HistoryPrice.objects.all().order_by('date_time'):
         if now - his.date_time > delta:
             his.delete()
@@ -31,9 +32,11 @@ def hp_ctrl():
 
 def hp_sum_ctrl():
     delta = DATE_DICTIONARY[parse_time_period(OLDEST_HIS_PRICE_SUM)['s']]*int(parse_time_period(OLDEST_HIS_PRICE_SUM)['d'])
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=pytz.timezone(TIME_ZONE))
     for his in HistoryPriceSummary.objects.all().order_by('date'):
-        if now - datetime.datetime.combine(his.date,datetime.datetime.min.time()) > delta:
+        sub = datetime.datetime.combine(his.date,datetime.datetime.min.time())
+        sub = sub.replace(tzinfo=pytz.timezone(TIME_ZONE))
+        if now - sub > delta:
             his.delete()
         else:   
             print('Finished maintain db-HistoryPriceSummary')

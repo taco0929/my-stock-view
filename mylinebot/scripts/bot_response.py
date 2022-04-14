@@ -231,12 +231,11 @@ ROA： {inf.roa}
                 diff = '-'
                 diff_p = '-'
                 if type(cur_price) != str:
-                    cur_price = cur_price.price
                     d = cur_price.date_time.replace(tzinfo=pytz.utc).astimezone(pytz.timezone(settings.TIME_ZONE)).strftime("%Y-%m-%d %H:%M")
                     open_price = HistoryPrice.objects.filter(stock_code=res[0],date_time__date=cur_price.date_time.date()).first().price
                     diff = cur_price.price - open_price
                     diff_p = round(diff/open_price*100,2)
-                msg = f'{res[0].name} {res[0].code}\n時間：{d}\n現價：{cur_price}\n開盤：{open_price}\n漲幅：{diff}\n漲幅% ：{diff_p}'
+                msg = f'{res[0].name} {res[0].code}\n時間：{d}\n現價：{cur_price.price}\n開盤：{open_price}\n漲幅：{diff}\n漲幅% ：{diff_p}'
                 return msg
             
             elif command[0] == command_list[9]: # 新聞
