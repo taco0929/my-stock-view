@@ -138,6 +138,7 @@
     <p>{{inf.business_describ}}</p>
 </div><br><br>
 <div>
+    !!!!!!!!News: {{news}}!!!!!!!!
     <h3>Related News</h3>
     {% if news %}
         <ul>
@@ -147,7 +148,7 @@
                     <td width=300px>
                 {{new.date_time}}
                     </td>
-                    <td width=400px>
+                    <td width=600px>
                         <a href="{% url 'news-content' new.id %}">{{new.title}}</a>
                     </td> 
                 </table>
