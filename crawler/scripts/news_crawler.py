@@ -41,6 +41,7 @@ def get_news(*stock_list,period='1d'):
                         date_time=news['datetime'] or datetime.datetime.now(tz=pytz.timezone('Asia/Taipei')),
                     )
                     n.save()
+                    print('News saved!')
                     n.related_stock.add(stock)
                 
                 continue

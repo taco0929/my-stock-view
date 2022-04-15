@@ -130,7 +130,7 @@ def search_news(request):
         page_obj = paginator.get_page(page_number)
         return render(request,'./catalog/search_news.html',{'news':news,'page_obj':page_obj,'q':q,})
     
-    news = News.objects.filter(Q(id=q)|Q(related_stock__code=q)|Q(related_stock__name__icontains=q)|Q(title__icontains=q)).order_by('-date_time').distinct()
+    news = News.objects.filter(Q(id__icontains=q)|Q(related_stock__code=q)|Q(related_stock__name__icontains=q)|Q(title__icontains=q)).order_by('-date_time').distinct()
     paginator = Paginator(news,15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
