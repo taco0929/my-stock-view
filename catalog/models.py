@@ -75,7 +75,7 @@ class StockInformation(models.Model):
 
     
 class News(models.Model):
-    title = models.CharField(max_length=80,help_text='Enter the title of the news')
+    title = models.CharField(max_length=128,help_text='Enter the title of the news')
     url=models.TextField(max_length=255,null=True,blank=True)
     content = models.TextField(help_text='Enter the content of the news', null=True, blank=True)
     date_time = models.DateTimeField(default=datetime.datetime.now)
