@@ -9,7 +9,7 @@ LineBot ID:
 
 GitHub:
 
-    www.github.com/taco0929
+    www.github.com/taco0929/my-stock-view
 
 
 # my-stock-view
