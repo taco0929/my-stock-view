@@ -15,7 +15,9 @@ def genMsg(msg:str or dict)->str:
     text = ''
     if type(msg) == dict:
         for item,item_val in msg.items():
-            text += f'{item}\n'
+            if type(item) == Stock:
+                text += f'{item.name} {item}\n'
+            else:   text += f'{item} \n'
             for k,v in item_val.items():
                 text += f'  {k}： {v}\n'
     elif type(msg) == str:
