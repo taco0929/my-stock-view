@@ -79,7 +79,7 @@ def getUserStockSummary(user:User):
     msg = {}
     stock_list = user.sublist.stock_list.all()
     if stock_list:
-        for stock in stock_list():
+        for stock in stock_list:
             stock_p = HistoryPriceSummary.objects.filter(stock=stock).order_by('-date').first()
             if stock_p:
                 msg[stock] = {
