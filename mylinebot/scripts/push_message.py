@@ -29,7 +29,6 @@ def PushMessages(user:User, msg:dict() or str()):
     id = UserLineID.objects.get(user=user).line_id
     if not id:  return 
     try:
-        print(id)
         line_bot_api.push_message(id,TextSendMessage(text=text))  
     except LineBotApiError as e:
         print(e)
@@ -111,6 +110,7 @@ def pushNews(user_list=None):
         for user in user_list:
             if user.activate and user.pushNews and user.line_id:
                 PushMessages(user.user,getUserNews(user.user))
+        logger.info('Finished pushing news!')
     
         
 def pushStock(user_list=None):
@@ -125,6 +125,7 @@ def pushStock(user_list=None):
         for user in user_list:
             if user.activate and user.pushPrice and user.line_id:
                 PushMessages(user.user,getUserStock(user.user))
+        logger.info('Finished pushing stock!')
             
 def pushStockSummary(user_list=None):
     if not user_list:
@@ -138,5 +139,5 @@ def pushStockSummary(user_list=None):
         for user in user_list:
             if user.activate and user.pushPrice and user.line_id:
                 PushMessages(user.user,getUserStockSummary(user.user))
-        
+        logger.info('Finished pushing stock summary!')
             

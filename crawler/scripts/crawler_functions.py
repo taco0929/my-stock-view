@@ -182,9 +182,15 @@ def update_exist_stock_hp_sum(*stock_list):
                 print(f'Stock item ({stock}) does not exist!')
                 continue
             d = twstock.realtime.get(stock.code)
+            if not d['success']:
+                p = yf.Ticker(f'{stock.code}.TW')
+                df = p.history(period="1d",interval="1m")
+                if not HistoryPriceSummary.objects.filter(stock_code=stock,date=(datetime.date.strptime(str(df.index[-1]),'%Y-%m-%d %H:%M:%S%z').date())):
+                    HistoryPriceSummary.objects.create(stock_code=stock,date=(datetime.datetime.strptime(str(df.index[-1]),'%Y-%m-%d %H:%M:%S%z')).date(),price=df.iloc[-1,0])
+                print(f'{stock}.........Done (yfinance)')
             if d['realtime']['latest_trade_price'] == '-':
                 d['realtime']['latest_trade_price'] = d['realtime']['best_bid_price'][0]
-            his_p = HistoryPriceSummary(
+            his_p,created = HistoryPriceSummary.objects.get_or_create(
                     stock=stock,
                     date=datetime.datetime.strptime(d['info']['time'].split()[0]+' +0800','%Y-%m-%d %z'),
                     open=float(d['realtime']['open']),
@@ -192,8 +198,7 @@ def update_exist_stock_hp_sum(*stock_list):
                     low=float(d['realtime']['low']),
                     close=float(d['realtime']['latest_trade_price']),
                 )
-            his_p.save()
-            print(f'{stock}.........Done')
+            print(f'{stock}.........Done(twstock)')
             time.sleep(0.5)
     except Exception as e:
         print(globals())
