@@ -21,7 +21,7 @@ GitHub:
 - `account`  
   <p>Views for all account pages.</p>
 - `catalog`  
-  <p></p>
+
   Models and views of `my-stock-view`.
   <p></p> 
 - `crawler` 
