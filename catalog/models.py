@@ -19,6 +19,19 @@ class UserLineID(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def set_activate(self,action=None):
+        if type(action) != bool:
+            return self.activate
+        self.activate = action
+    def set_pushNews(self,action=None):
+        if type(action) != bool:
+            return self.pushNews
+        self.pushNews = action
+    def set_pushPrice(self,action=None):
+        if type(action) != bool:
+            return self.pushPrice
+        self.pushPrice = action
 
 
 class Sector(models.Model):

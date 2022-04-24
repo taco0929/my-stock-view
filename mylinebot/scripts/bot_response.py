@@ -108,15 +108,17 @@ class botResponse:
                 else:
                     if command[2] not in options['actions']:
                         msg += f'錯誤！選項{command[2]}不存在。可供選項：\n'
-                        [msg + f'{k}\n' for k in options['actions']]
+                        for k in options['actions']:
+                            msg = msg + f'{k}\n' 
                         return msg.strip()
                     else:
-                        options['options'][command[1]] = options['actions'][command[2]]
+                        options['options'][command[1]]( options['actions'][command[2]])
                         options['object'].save()
+                        logger.info(options['object'].activate)
                         msg += '設定完成！目前設定：\n'
                         for k,v in options['options'].items():
-                            msg += f'{k}：{v}\n'
-                            return msg.strip()
+                            msg += f'{k}：{v()}\n'
+                        return msg.strip()
             
     
     def parse_msg(self,) -> str:
@@ -207,9 +209,9 @@ ROA： {inf.roa}
                     command_type='setting',
                     object=self.user,
                     options = {
-                        '啟用功能' : self.user.activate,
-                        '推送新聞' : self.user.pushNews,
-                        '推送股價' : self.user.pushPrice,
+                        '啟用功能' : self.user.set_activate,
+                        '推送新聞' : self.user.set_pushNews,
+                        '推送股價' : self.user.set_pushPrice,
                     },
                     actions = {
                         '開' : True,

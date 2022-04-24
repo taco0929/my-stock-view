@@ -35,13 +35,14 @@ class LineBotTest(TestCase):
                 "message" : {
                     "type" : "text",
                     "id" : "1234567",
-                    "text" : input or "hello world",
+                    "text" : input if input else "hello world",
                 },
                 "source": {
                     "type": "user",
                     "userId": userID or "test123"
                 },
             }
+
         # event = json.dumps(e)
         msg = MessageEvent.new_from_json_dict(e)
         
@@ -64,6 +65,14 @@ class LineBotTest(TestCase):
             r = botResponse(self.create_webhook(input='help ' + command))
             logger.info('help ' + command)
             logger.info(r.parse_msg())
+    
+    def test_change_setting(self):
+        command = '我的設定 啟用功能 關'
+        r = botResponse(self.create_webhook(input= command))
+        logger.info(command)
+        logger.info(r.parse_msg())
+        u = User.objects.get(username='user1')
+        logger.info(UserLineID.objects.get(user=u).activate)
 
 class test_verify(TestCase):
     def setUp(self):
